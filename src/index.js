@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import ReactDOM from 'react-dom'
-// import CountUp from 'react-countup'
+import CountUp from 'react-countup'
 
 import uuid from 'uuid'
 import moment from 'moment'
@@ -235,12 +235,17 @@ import moment from 'moment'
 
 const TimeTrackerApp = () => {
 
-  // If I can use set interval I would not need start and end properties
+  // TODOs
+  // - Make a reset button
+  // - Style the app
+  // - Make a Header to use routing
+  // - Make a Visual track like google calendar
 
   const dataTasks = JSON.parse(localStorage.getItem('tasks'))
   const [tasks, setTasks] = useState(dataTasks || [])
   const [description, setDescription] = useState('')
-  const [tracking, setTracking] = useState(false)
+  const [minutes, setMinutes] = useState(0)
+  const [hours, setHours] = useState(0)
 
   const handelAddTask = () => {
 
@@ -249,6 +254,7 @@ const TimeTrackerApp = () => {
       {
         id: uuid(),
         description,
+        tracking: false,
         start: 0,
         end: 0,
         time: 0
@@ -263,11 +269,11 @@ const TimeTrackerApp = () => {
     const updatedTasks = tasks.map((task) => {
       if (task.id === id) {
         task.start = moment().valueOf()
+        task.tracking = true
       }
       return task
     })
     setTasks(updatedTasks)
-    setTracking(true)
   }
 
   const handleStopTrack = (id) => {
@@ -275,11 +281,11 @@ const TimeTrackerApp = () => {
       if (task.id === id) {
         task.end = moment().valueOf()
         task.time = Math.floor(task.time + ((task.end - task.start) / 1000))
+        task.tracking = false
       }
       return task
     })
     setTasks(updatedTasks)
-    setTracking(false)
   }
 
   const handleRemoveTask = (id) => {
@@ -296,15 +302,38 @@ const TimeTrackerApp = () => {
       <h1>Time Tracker</h1>
       {tasks.map((task) => (
         <div key={task.id}>
-          <p>
-            {task.description}
-            <span>{task.time ? Math.floor(task.time / 3600) : 0}</span>:
-            <span>{task.time < 3600 ? Math.floor(task.time / 60) : 0}</span>:
-            <span>{task.time < 60 ? task.time : task.time - (60 * Math.floor(task.time / 60))}</span>
-            {!tracking ? <button onClick={() => handleStartTrack(task.id)}>T</button> : <button onClick={() => handleStopTrack(task.id)}>S</button>}
-            <button onClick={() => handleRemoveTask(task.id)}>R</button>
-          </p>
-
+          {!task.tracking ?
+            < p >
+              {task.description}
+              < span > {task.time ? Math.floor(task.time / 3600) : 0}</span>:
+              <span>{task.time < 3600 ? Math.floor(task.time / 60) : 0}</span>:
+              <span>{task.time < 60 ? task.time : task.time - (60 * Math.floor(task.time / 60))}</span>
+              <button onClick={() => handleStartTrack(task.id)}>T</button>
+              <button onClick={() => handleRemoveTask(task.id)}>R</button>
+            </p> :
+            <p>
+              {task.description}
+              <span>{hours}</span>:
+              <span>{minutes}</span>:
+              <CountUp
+                start={0}
+                end={59}
+                duration={60}
+                useEasing={false}
+                onEnd={({ reset, start }) => {
+                  setMinutes(minutes + 1)
+                  if (minutes === 59) {
+                    setHours(hours + 1)
+                    setMinutes(0)
+                  }
+                  reset()
+                  start()
+                }}
+              />
+              < button onClick={() => handleStopTrack(task.id)}>S</button>
+              <button onClick={() => handleRemoveTask(task.id)}>R</button>
+            </p>
+          }
 
         </div>
       ))}

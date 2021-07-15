@@ -286,6 +286,8 @@ const TimeTrackerApp = () => {
       return task
     })
     setTasks(updatedTasks)
+    setMinutes(0)
+    setHours(0)
   }
 
   const handleRemoveTask = (id) => {

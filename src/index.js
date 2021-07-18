@@ -307,8 +307,8 @@ const TimeTrackerApp = () => {
           {!task.tracking ?
             < p >
               {task.description}
-              < span > {task.time ? Math.floor(task.time / 3600) : 0}</span>:
-              <span>{task.time < 3600 ? Math.floor(task.time / 60) : 0}</span>:
+              < span > {Math.floor(task.time / 3600)}</span>:
+              <span>{Math.floor(task.time / 60)}</span>:
               <span>{task.time < 60 ? task.time : task.time - (60 * Math.floor(task.time / 60))}</span>
               <button onClick={() => handleStartTrack(task.id)}>T</button>
               <button onClick={() => handleRemoveTask(task.id)}>R</button>
